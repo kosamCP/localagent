@@ -9,7 +9,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
       - name: Create App
         run: |
           rm -rf app gradle build.gradle settings.gradle || true
@@ -22,14 +21,7 @@ jobs:
           dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }
           EOF
           cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <application android:label="Local Agent">
-              <activity android:name=".MainActivity" android:exported="true">
-                <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
-              </activity>
-            </application>
-          </manifest>
+          <?xml version="1.0" encoding="utf-8"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="Local Agent"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
           EOF
           echo 'package com.localagent; import android.app.Activity; import android.os.Bundle; import android.widget.TextView; public class MainActivity extends Activity{ protected void onCreate(Bundle b){super.onCreate(b); TextView t=new TextView(this); t.setText("APK Works!"); setContentView(t);} }' > app/src/main/java/com/localagent/MainActivity.java
           echo "distributionBase=GRADLE_USER_HOME
@@ -40,10 +32,8 @@ jobs:
           curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.6/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
           curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.6/gradlew -o gradlew
           chmod +x gradlew
-
       - name: Build APK
-        run: ./gradlew assembleDebug --stacktrace
-
+        run: ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: LocalAgent-APK
