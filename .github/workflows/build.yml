@@ -9,10 +9,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.6'
+
       - name: Create App
         run: |
-          rm -rf app gradle build.gradle settings.gradle || true
-          mkdir -p app/src/main/java/com/localagent gradle/wrapper
+          rm -rf app build.gradle settings.gradle || true
+          mkdir -p app/src/main/java/com/localagent
           echo "include ':app'" > settings.gradle
           echo "buildscript{repositories{google();mavenCentral()} dependencies{classpath 'com.android.tools.build:gradle:8.2.0'}} allprojects{repositories{google();mavenCentral()}}" > build.gradle
           cat > app/build.gradle <<'EOF'
@@ -24,16 +28,10 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:label="Local Agent"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
           EOF
           echo 'package com.localagent; import android.app.Activity; import android.os.Bundle; import android.widget.TextView; public class MainActivity extends Activity{ protected void onCreate(Bundle b){super.onCreate(b); TextView t=new TextView(this); t.setText("APK Works!"); setContentView(t);} }' > app/src/main/java/com/localagent/MainActivity.java
-          echo "distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https://services.gradle.org/distributions/gradle-8.6-bin.zip
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists" > gradle/wrapper/gradle-wrapper.properties
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.6/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/v8.6/gradlew -o gradlew
-          chmod +x gradlew
+
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: gradle assembleDebug
+
       - uses: actions/upload-artifact@v4
         with:
           name: LocalAgent-APK
